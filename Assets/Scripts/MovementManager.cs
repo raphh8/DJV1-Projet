@@ -4,40 +4,46 @@ using UnityEngine;
 
 public class MovementManager : MonoBehaviour
 {
-    AbstractState currentState;
+    public AbstractState currentState;
     public IdleState Idle = new IdleState();
     public WalkingState Walking = new WalkingState();
     public RunningState Running = new RunningState();
+    public JumpState Jump = new JumpState();
+    public ShootingState Shoot = new ShootingState();
+
     public Animator animator;
 
-    public float moveSpeed = 3f;
+    public float moveSpeed = 2f;
     public float runSpeedMultiplier = 1.5f;
-    public float rollSpeed = 6f;
+    public float rollSpeed = 4f;
+    public float airSpeed = 1.5f;
 
     public Vector3 dir;
     CharacterController controller;
 
-    float horizontal, vertical;
+    public float horizontal, vertical;
 
     [SerializeField] float groundYOffset;
     [SerializeField] LayerMask groundMask;
     Vector3 spherePos;
-    [SerializeField] float gravity = -9.81f;
+    [SerializeField] float gravity = -15f;
+    [SerializeField] float jumpForce = 6;
+    public bool jumped;
+    public bool shooted;
     Vector3 velocity;
 
-    // Start is called before the first frame update
     void Start()
     {
-        animator = GetComponentInChildren<Animator>();
+        animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
         SwitchState(Idle);
     }
 
-    // Update is called once per frame
     void Update()
     {
         GetDirectionMove();
         Gravity();
+        Falling();
 
         animator.SetFloat("horizontal", horizontal);
         animator.SetFloat("vertical", vertical);
@@ -54,16 +60,18 @@ public class MovementManager : MonoBehaviour
     {
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
+        Vector3 airDir = Vector3.zero;
+        if(!IsOnGround()) airDir = transform.forward * vertical + transform.right * horizontal;
+        else dir = transform.forward * vertical + transform.right * horizontal;
+
 
         float speed = Input.GetKey(KeyCode.LeftShift) ? moveSpeed * runSpeedMultiplier : moveSpeed;
-        dir = transform.forward * vertical + transform.right * horizontal;
-        controller.Move(dir.normalized * speed * Time.deltaTime);
+        controller.Move((dir.normalized * speed + airDir.normalized * airSpeed) * Time.deltaTime);
     }
 
-    bool IsOnGround()
+    public bool IsOnGround()
     {
-        spherePos = new Vector3(transform.position.x, transform.position.y - groundYOffset, transform.position.z);
-        return Physics.CheckSphere(spherePos, controller.radius - 0.05f, groundMask);
+        return Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundYOffset, groundMask);
     }
 
     void Gravity()
@@ -73,6 +81,13 @@ public class MovementManager : MonoBehaviour
 
         controller.Move(velocity * Time.deltaTime);
     }
+
+    public void Falling() => animator.SetBool("Falling", !IsOnGround());
+    public void JumpForce() => velocity.y += jumpForce;
+
+    public void Jumped() => jumped = true;
+
+    public void Shooted() => shooted = true;
 }
 
 

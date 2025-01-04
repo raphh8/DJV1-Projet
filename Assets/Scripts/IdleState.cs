@@ -17,5 +17,8 @@ public class IdleState : AbstractState
             if (Input.GetKey(KeyCode.LeftShift)) manager.SwitchState(manager.Running);
             manager.SwitchState(manager.Walking);
         }
+        if(Input.GetKey(KeyCode.Space)) manager.SwitchState(manager.Jump);
+
+        if (Input.GetMouseButtonDown(0)) manager.SwitchState(manager.Shoot);
     }
 }

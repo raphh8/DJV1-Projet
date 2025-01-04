@@ -14,6 +14,10 @@ public class WalkingState : AbstractState
     {
         if (Input.GetKey(KeyCode.LeftShift)) ExitState(manager, manager.Running);
         else if (manager.dir.magnitude < 0.1f) ExitState(manager, manager.Idle);
+
+        if (Input.GetKey(KeyCode.Space)) ExitState(manager, manager.Jump);
+
+        if (Input.GetMouseButtonDown(0)) ExitState(manager, manager.Shoot);
     }
 
     void ExitState(MovementManager manager, AbstractState state)
