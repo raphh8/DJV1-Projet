@@ -30,7 +30,7 @@ public class EnemySpawner : MonoBehaviour
                 float x = Random.Range(terrainPosition.x, terrainPosition.x + terrainSize.x);
                 float z = Random.Range(terrainPosition.z, terrainPosition.z + terrainSize.z);
 
-                var enemy = Instantiate(enemyPrefab, new Vector3(x, 0f, z), Quaternion.identity, transform);
+                var enemy = Instantiate(enemyPrefab, new Vector3(x, terrainPosition.y, z), Quaternion.identity, transform);
                 enemy.gameObject.SetActive(true);
                 _enemyCharacters.Add(enemy);
                 enemy.AddDestroyListener(OnEnemyCharacterDestroyed);

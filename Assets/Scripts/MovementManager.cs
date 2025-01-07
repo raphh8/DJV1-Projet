@@ -32,6 +32,8 @@ public class MovementManager : MonoBehaviour
     public bool shooted;
     Vector3 velocity;
 
+    [SerializeField] public waterBullet waterBulletPrefab;
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -88,6 +90,13 @@ public class MovementManager : MonoBehaviour
     public void Jumped() => jumped = true;
 
     public void Shooted() => shooted = true;
+
+    public void ShootBullet(Vector3 position, Quaternion rotation)
+    {
+        position.x += 0.3f;
+        position.y += 1.45f;
+        Instantiate(waterBulletPrefab, position, rotation).gameObject.SetActive(true);
+    }
 }
 
 

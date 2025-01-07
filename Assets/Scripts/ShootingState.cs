@@ -7,6 +7,8 @@ public class ShootingState : AbstractState
     public override void EnterState(MovementManager manager)
     {
         manager.animator.SetTrigger("Shoot");
+        var direction = manager.transform.rotation * Vector3.forward;
+        manager.ShootBullet(manager.transform.position + direction * 0.5f, manager.transform.rotation);
     }
 
     public override void UpdateState(MovementManager manager)
