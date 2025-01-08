@@ -6,29 +6,33 @@ using UnityEngine.Events;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyCharacter : MonoBehaviour, IDamageable
 {
-    [SerializeField] private int initialHitPoints = 10;
+    [SerializeField] private int initialLife = 15;
     [SerializeField] private float moveCooldown = 3f;
+    [SerializeField] private float shootCooldown = 2f;
     [SerializeField] private float angularSpeed = 360f;
-    [SerializeField] private Transform target;
     [SerializeField] private ParticleSystem explosionPrefab;
+    [SerializeField] public waterBullet waterBulletPrefab;
+    [SerializeField] private Transform eyePoint;
 
-    private int _hitPoints = 0;
-    private float _moveTimer = 0f;
-    private NavMeshAgent _navMeshAgent;
-    private UnityEvent<EnemyCharacter> _onDestroy = new();
-    private RaycastHit[] _raycastHits = new RaycastHit[2];
+    private int life = 0;
+    private float moveTimer = 0f;
+    private float shootTimer = 0f;
+    private NavMeshAgent navMeshAgent;
+    private UnityEvent<EnemyCharacter> onDestroy = new();
+    private RaycastHit[] raycastHits = new RaycastHit[2];
 
     Terrain terrain;
     Vector3 terrainSize;
 
+    [SerializeField] private PlayerCharacter player;
 
-    public float HitPointPercent => (float)_hitPoints / initialHitPoints;
+    public float LifePercent => (float)life / initialLife;
 
     protected void Awake()
     {
-        _navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent = GetComponent<NavMeshAgent>();
 
-        _hitPoints = initialHitPoints;
+        life = initialLife;
 
         terrain = Terrain.activeTerrain;
         terrainSize = terrain.terrainData.size;
@@ -41,22 +45,25 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
 
     protected void OnEnable()
     {
+        if (player != null)
+        {
+            player.ApplyDamage(10); 
+        }
+
         StartCoroutine(Coroutine());
         IEnumerator Coroutine()
         {
             yield return null;
-            _navMeshAgent.enabled = true;
+            navMeshAgent.enabled = true;
 
             while (enabled)
             {
-
-                if (_navMeshAgent.isOnNavMesh)
+                if (navMeshAgent.isOnNavMesh)
                 {
-
                     Vector3 terrainPosition = terrain.GetPosition();
                     float x = Random.Range(terrainPosition.x, terrainPosition.x + terrainSize.x);
                     float z = Random.Range(terrainPosition.z, terrainPosition.z + terrainSize.z);
-                    _navMeshAgent.SetDestination(new Vector3(x, 0f, z));
+                    navMeshAgent.SetDestination(new Vector3(x, 0f, z));
                 }
                 else
                 {
@@ -64,50 +71,59 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
                 }
 
                 do yield return null;
-                while (_navMeshAgent.hasPath);
+                while (navMeshAgent.hasPath);
 
                 do
                 {
+                    shootTimer += Time.deltaTime;
 
-                    var direction = (target.position - transform.position);
-                    var lookRotation = Quaternion.LookRotation(direction.normalized);
+                    Vector3 direction = (player.transform.position + Vector3.up * 1.5f - eyePoint.position).normalized;
+                    Quaternion lookRotation = Quaternion.LookRotation(direction);
 
                     transform.rotation = Quaternion.RotateTowards(
                         transform.rotation,
                         lookRotation,
                         angularSpeed * Time.deltaTime);
 
-                    bool hitWall = false;
-
-                    hitWall = Physics.RaycastNonAlloc(transform.position + Vector3.up, direction.normalized, _raycastHits, direction.magnitude) > 1;
+                    bool hitWall = Physics.Raycast(transform.position + Vector3.up, direction.normalized, out RaycastHit hit, direction.magnitude, LayerMask.GetMask("Default", "Ground"));
 
                     yield return null;
-                    _moveTimer += Time.deltaTime;
-                } while (_moveTimer < moveCooldown);
+                    moveTimer += Time.deltaTime;
 
-                _moveTimer = 0f;
+                    if (shootTimer >= shootCooldown && !hitWall)
+                    {
+                        shootTimer = 0f; 
+                        Vector3 spawnPosition = eyePoint.position;
+                        Instantiate(waterBulletPrefab, spawnPosition, lookRotation).gameObject.SetActive(true);
+                    }
+
+                } while (moveTimer < moveCooldown);
+
+                moveTimer = 0f;
+                shootTimer = 0f;
             }
         }
     }
 
     public void AddDestroyListener(UnityAction<EnemyCharacter> listener)
     {
-        _onDestroy.AddListener(listener);
+        onDestroy.AddListener(listener);
     }
 
     public void ApplyDamage(int value)
     {
-        _hitPoints -= value;
+        life -= value;
 
-        if (_hitPoints <= 0)
+        if (life <= 0)
         {
+            player.ApplyDamage(-10);
             var explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             explosion.gameObject.SetActive(true);
             explosion.Play();
             Destroy(explosion.gameObject, explosion.main.duration);
 
             Destroy(gameObject);
-            _onDestroy.Invoke(this);
+            onDestroy.Invoke(this);
         }
     }
 }

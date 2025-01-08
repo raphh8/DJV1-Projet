@@ -5,14 +5,14 @@ using UnityEngine.AI;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] private float spawnInterval = 5f;
+    [SerializeField] private float spawnInterval = 7f;
     [SerializeField] private EnemyCharacter enemyPrefab;
 
-    private int _enemyKilledCount = 0;
-    private float _spawnTimer = 0f;
-    private List<EnemyCharacter> _enemyCharacters = new();
+    private int enemyKilledCount = 0;
+    private float spawnTimer = 0f;
+    private List<EnemyCharacter> enemyCharacters = new();
 
-    public int EnemyKilledCount => _enemyKilledCount;
+    public int EnemyKilledCount => enemyKilledCount;
 
     private IEnumerator Start()
     {
@@ -21,18 +21,18 @@ public class EnemySpawner : MonoBehaviour
         Vector3 terrainSize = terrain.terrainData.size;
         while (true)
         {
-            _spawnTimer += Time.deltaTime;
+            spawnTimer += Time.deltaTime;
 
-            if (_spawnTimer > spawnInterval)
+            if (spawnTimer > spawnInterval)
             {
-                _spawnTimer = 0f;
+                spawnTimer = 0f;
 
                 float x = Random.Range(terrainPosition.x, terrainPosition.x + terrainSize.x);
                 float z = Random.Range(terrainPosition.z, terrainPosition.z + terrainSize.z);
 
                 var enemy = Instantiate(enemyPrefab, new Vector3(x, terrainPosition.y, z), Quaternion.identity, transform);
                 enemy.gameObject.SetActive(true);
-                _enemyCharacters.Add(enemy);
+                enemyCharacters.Add(enemy);
                 enemy.AddDestroyListener(OnEnemyCharacterDestroyed);
             }
 
@@ -42,7 +42,7 @@ public class EnemySpawner : MonoBehaviour
 
     private void OnEnemyCharacterDestroyed(EnemyCharacter enemy)
     {
-        _enemyCharacters.Remove(enemy);
-        _enemyKilledCount += 1;
+        enemyCharacters.Remove(enemy);
+        enemyKilledCount += 1;
     }
 }

@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class ShootingState : AbstractState
 {
-    public override void EnterState(MovementManager manager)
+    public override void EnterState(PlayerCharacter manager)
     {
-        manager.animator.SetTrigger("Shoot");
-        var direction = manager.transform.rotation * Vector3.forward;
-        manager.ShootBullet(manager.transform.position + direction * 0.5f, manager.transform.rotation);
+            manager.animator.SetTrigger("Shoot");
+            manager.ShootBullet();
     }
 
-    public override void UpdateState(MovementManager manager)
+    public override void UpdateState(PlayerCharacter manager)
     {
         if (manager.shooted)
         {

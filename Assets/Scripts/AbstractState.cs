@@ -1,6 +1,6 @@
 public abstract class AbstractState 
 {
-     public abstract void EnterState(MovementManager manager);
+     public abstract void EnterState(PlayerCharacter manager);
 
-    public abstract void UpdateState(MovementManager manager);
+    public abstract void UpdateState(PlayerCharacter manager);
 }

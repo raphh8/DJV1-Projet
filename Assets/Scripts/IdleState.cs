@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class IdleState : AbstractState
 {
-    public override void EnterState(MovementManager manager)
+    public override void EnterState(PlayerCharacter manager)
     {
 
     }
 
 
-    public override void UpdateState(MovementManager manager)
+    public override void UpdateState(PlayerCharacter manager)
     {
         if (manager.dir.magnitude > 0.1f)
         {

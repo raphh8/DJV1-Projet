@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class waterBullet : MonoBehaviour
 {
-    [SerializeField] private int damage = 3;
-    [SerializeField] private float speed = 5f;
+    [SerializeField] private int damage = 6;
+    [SerializeField] private float speed = 50f;
 
     private void FixedUpdate()
     {

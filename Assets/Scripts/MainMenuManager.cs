@@ -3,15 +3,20 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
+    public GameObject rules;
     public void PlayGame()
     {
         SceneManager.LoadScene("Main");
     }
 
-    public void OpenOptions()
+    public void OpenRules()
     {
-        // Affiche un menu d'options ou ouvre une autre scène
-        Debug.Log("Options ouvertes");
+        rules.SetActive(true);
+    }
+
+    public void CloseRules()
+    {
+        rules.SetActive(false);
     }
 
     public void QuitGame()

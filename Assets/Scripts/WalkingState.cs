@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class WalkingState : AbstractState
 {
-    public override void EnterState(MovementManager manager)
+    public override void EnterState(PlayerCharacter manager)
     {
         manager.animator.SetBool("Walking", true);
     }
 
 
-    public override void UpdateState(MovementManager manager)
+    public override void UpdateState(PlayerCharacter manager)
     {
         if (Input.GetKey(KeyCode.LeftShift)) ExitState(manager, manager.Running);
         else if (manager.dir.magnitude < 0.1f) ExitState(manager, manager.Idle);
@@ -20,7 +20,7 @@ public class WalkingState : AbstractState
         if (Input.GetMouseButtonDown(0)) ExitState(manager, manager.Shoot);
     }
 
-    void ExitState(MovementManager manager, AbstractState state)
+    void ExitState(PlayerCharacter manager, AbstractState state)
     {
         manager.animator.SetBool("Walking", false);
         manager.SwitchState(state);

@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class JumpState : AbstractState
 {
-    public override void EnterState(MovementManager manager)
+    public override void EnterState(PlayerCharacter manager)
     {
         manager.animator.SetTrigger("Jump");
     }
 
-    public override void UpdateState(MovementManager manager)
+    public override void UpdateState(PlayerCharacter manager)
     {
         if(manager.jumped && manager.IsOnGround())
         {
