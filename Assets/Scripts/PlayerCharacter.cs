@@ -35,18 +35,28 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
     [SerializeField] public waterBullet waterBulletPrefab;
     [SerializeField] private Transform shootPoint;
 
-    [SerializeField] private int stressLvl = 0;
+    private int stressLvl;
     [SerializeField] private int maxStress = 100;
+
+    [SerializeField] private GameObject gameOverPanel;
+
+    private bool isDead;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
+        gameOverPanel.SetActive(false);
         SwitchState(Idle);
+
+        stressLvl = 0;
+        isDead = false;
     }
 
     void Update()
     {
+        if (isDead) return;
+
         GetDirectionMove();
         Gravity();
         Falling();
@@ -105,15 +115,23 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
         bullet.gameObject.SetActive(true);
     }
 
-
-
     public void ApplyDamage(int value)
     {
+        if (isDead) return;
+
         stressLvl += value;
         stressLvl = Mathf.Clamp(stressLvl, 0, maxStress);
 
         if (stressLvl >= maxStress)
         {
+            foreach (EnemyCharacter enemy in FindObjectsOfType<EnemyCharacter>())
+            {
+                enemy.NotifyPlayerDead();
+            }
+            isDead = true;
+            gameOverPanel.SetActive(true);
+            controller.enabled = false;
+            Time.timeScale = 0f;
             Destroy(gameObject);
         }
     }

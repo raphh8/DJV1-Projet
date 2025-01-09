@@ -44,5 +44,6 @@ public class EnemySpawner : MonoBehaviour
     {
         enemyCharacters.Remove(enemy);
         enemyKilledCount += 1;
+        Debug.Log($"Enemy killed! New score: {enemyKilledCount}");
     }
 }

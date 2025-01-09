@@ -25,6 +25,8 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
     Vector3 terrainSize;
 
     [SerializeField] private PlayerCharacter player;
+    private bool playerIsDead = false;
+    private bool isDead;
 
     public float LifePercent => (float)life / initialLife;
 
@@ -33,8 +35,9 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
         navMeshAgent = GetComponent<NavMeshAgent>();
 
         life = initialLife;
+        isDead = false;
 
-        terrain = Terrain.activeTerrain;
+    terrain = Terrain.activeTerrain;
         terrainSize = terrain.terrainData.size;
 
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
@@ -56,8 +59,9 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
             yield return null;
             navMeshAgent.enabled = true;
 
-            while (enabled)
+            while (enabled && !isDead)
             {
+                if (playerIsDead) yield break;
                 if (navMeshAgent.isOnNavMesh)
                 {
                     Vector3 terrainPosition = terrain.GetPosition();
@@ -75,6 +79,8 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
 
                 do
                 {
+                    if (playerIsDead) yield break;
+
                     shootTimer += Time.deltaTime;
 
                     Vector3 direction = (player.transform.position + Vector3.up * 1.5f - eyePoint.position).normalized;
@@ -112,10 +118,14 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
 
     public void ApplyDamage(int value)
     {
+        if(isDead) return;
+
         life -= value;
+        life = Mathf.Clamp(life, 0, initialLife);
 
         if (life <= 0)
         {
+            isDead = true;
             player.ApplyDamage(-10);
             var explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             explosion.gameObject.SetActive(true);
@@ -125,5 +135,10 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
             Destroy(gameObject);
             onDestroy.Invoke(this);
         }
+    }
+    public void NotifyPlayerDead()
+    {
+        playerIsDead = true;
+        navMeshAgent.isStopped = true;
     }
 }
