@@ -40,6 +40,10 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    public List<EnemyCharacter> GetActiveEnemies()
+    {
+        return enemyCharacters;
+    }
     private void OnEnemyCharacterDestroyed(EnemyCharacter enemy)
     {
         enemyCharacters.Remove(enemy);

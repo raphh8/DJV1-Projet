@@ -6,8 +6,8 @@ using UnityEngine.Events;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyCharacter : MonoBehaviour, IDamageable
 {
-    [SerializeField] private int initialLife = 15;
-    [SerializeField] private float moveCooldown = 3f;
+    [SerializeField] private int initialLife = 6;
+    [SerializeField] private float moveCooldown = 5f;
     [SerializeField] private float shootCooldown = 2f;
     [SerializeField] private float angularSpeed = 360f;
     [SerializeField] private ParticleSystem explosionPrefab;
@@ -109,6 +109,14 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
                 shootTimer = 0f;
             }
         }
+    }
+
+    public void UpgradeStats()
+    {
+        initialLife += 5;
+        moveCooldown -= 0.1f;
+        shootCooldown -= 0.1f;
+        angularSpeed += 10f;
     }
 
     public void AddDestroyListener(UnityAction<EnemyCharacter> listener)

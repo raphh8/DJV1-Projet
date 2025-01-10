@@ -56,7 +56,7 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
         stressLvl = 0;
         isDead = false;
         bonus1 = false;
-        bonus2 = false;
+        bonus2 = true;
     }
 
     void Update()
@@ -71,6 +71,13 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
         animator.SetFloat("vertical", vertical);
 
         currentState.UpdateState(this);
+    }
+
+    public void UpgradeStats()
+    {
+        moveSpeed += 0.5f;
+        runSpeedMultiplier += 0.1f;
+        rollSpeed += 0.3f;
     }
 
     public void SwitchState(AbstractState state)
@@ -115,7 +122,7 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
             Debug.Log("Bonus 1 débloqué : Vous pouvez courir !");
         }
 
-        if (enemiesKilled >= 10 && !bonus2)
+        if (enemiesKilled >= 1 && !bonus2)
         {
             bonus2 = true;
             Debug.Log("Bonus 2 débloqué : Vous pouvez faire une roulade !");
@@ -144,7 +151,9 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
 
     public void RollPerform()
     {
-
+        Vector3 rollDirection = dir.normalized;
+        Vector3 rollMovement = rollDirection * rollSpeed * Time.deltaTime;
+        controller.Move(rollMovement);
     }
 
     public void ApplyDamage(int value)
