@@ -10,6 +10,7 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
     public RunningState Running = new RunningState();
     public JumpState Jump = new JumpState();
     public ShootingState Shoot = new ShootingState();
+    public RollState Roll = new RollState();
 
     public Animator animator;
 
@@ -30,6 +31,7 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
     [SerializeField] float jumpForce = 6;
     public bool jumped;
     public bool shooted;
+    public bool rolled;
     Vector3 velocity;
 
     [SerializeField] public waterBullet waterBulletPrefab;
@@ -41,6 +43,8 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
     [SerializeField] private GameObject gameOverPanel;
 
     private bool isDead;
+    private int enemiesKilled = 0;
+    public bool bonus1, bonus2;
 
     void Start()
     {
@@ -51,6 +55,8 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
 
         stressLvl = 0;
         isDead = false;
+        bonus1 = false;
+        bonus2 = false;
     }
 
     void Update()
@@ -81,7 +87,8 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
         else dir = transform.forward * vertical + transform.right * horizontal;
 
 
-        float speed = Input.GetKey(KeyCode.LeftShift) ? moveSpeed * runSpeedMultiplier : moveSpeed;
+        float speed = moveSpeed;
+        if(Input.GetKey(KeyCode.LeftShift) && bonus1) speed *= runSpeedMultiplier;
         controller.Move((dir.normalized * speed + airDir.normalized * airSpeed) * Time.deltaTime);
     }
 
@@ -98,12 +105,32 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
         controller.Move(velocity * Time.deltaTime);
     }
 
+    public void OnEnemyKilled()
+    {
+        enemiesKilled++;
+
+        if (enemiesKilled >= 3 && !bonus1)
+        {
+            bonus1 = true;
+            Debug.Log("Bonus 1 débloqué : Vous pouvez courir !");
+        }
+
+        if (enemiesKilled >= 10 && !bonus2)
+        {
+            bonus2 = true;
+            Debug.Log("Bonus 2 débloqué : Vous pouvez faire une roulade !");
+        }
+    }
+
     public void Falling() => animator.SetBool("Falling", !IsOnGround());
+
     public void JumpForce() => velocity.y += jumpForce;
 
     public void Jumped() => jumped = true;
 
     public void Shooted() => shooted = true;
+
+    public void Rolled() => rolled = true;
 
     public void ShootBullet()
     {
@@ -113,6 +140,11 @@ public class PlayerCharacter : MonoBehaviour, IDamageable
 
         var bullet = Instantiate(waterBulletPrefab, spawnPosition, spawnRotation);
         bullet.gameObject.SetActive(true);
+    }
+
+    public void RollPerform()
+    {
+
     }
 
     public void ApplyDamage(int value)

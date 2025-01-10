@@ -24,7 +24,7 @@ public class EnemyCharacter : MonoBehaviour, IDamageable
     Terrain terrain;
     Vector3 terrainSize;
 
-    [SerializeField] private PlayerCharacter player;
+    [SerializeField] public PlayerCharacter player;
     private bool playerIsDead = false;
     private bool isDead;
 

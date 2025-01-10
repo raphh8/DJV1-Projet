@@ -18,7 +18,7 @@ public class JumpState : AbstractState
             {
                 manager.SwitchState(manager.Idle);
             }
-            else if (Input.GetKey(KeyCode.LeftShift)) manager.SwitchState(manager.Running);
+            else if (Input.GetKey(KeyCode.LeftShift) && manager.bonus1) manager.SwitchState(manager.Running);
             else manager.SwitchState(manager.Walking);
         }
     }

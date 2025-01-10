@@ -18,6 +18,8 @@ public class RunningState : AbstractState
         if (Input.GetKey(KeyCode.Space)) ExitState(manager, manager.Jump);
 
         if (Input.GetMouseButtonDown(0)) ExitState(manager, manager.Shoot);
+
+        if (Input.GetKey(KeyCode.LeftControl) && manager.bonus2) manager.SwitchState(manager.Roll);
     }
     void ExitState(PlayerCharacter manager, AbstractState state)
     {
